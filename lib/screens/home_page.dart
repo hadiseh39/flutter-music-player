@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_player/screens/play_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,7 +27,9 @@ class _HomePageState extends State<HomePage> {
               title: Text('Item $index'),
               subtitle: Text('sub'),
               onTap: () {
-                
+                Navigator.push(context, MaterialPageRoute(builder: (context){
+                  return PlayPage();
+                }));
               },
             );
           },
