@@ -1,7 +1,12 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 
 class PlayPage extends StatefulWidget {
-  const PlayPage({super.key});
+  const PlayPage({super.key, required this.song});
+
+  final SongModel song;
 
   @override
   State<PlayPage> createState() => _PlayPageState();
@@ -16,20 +21,38 @@ class _PlayPageState extends State<PlayPage> {
           children: [
             Column(
               children: [
+                /*ImageFiltered(   // doesen't work in my phone:(
+                  imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: QueryArtworkWidget(
+                    id: widget.song.id, 
+                    type: ArtworkType.AUDIO,
+                    artworkFit: BoxFit.cover,
+                    artworkHeight: double.infinity,
+                    artworkWidth: double.infinity,
+                  ),
+                ),*/
                 const SizedBox(height: 20,),
-                const Text('name',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                Text(widget.song.title,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 5,),
-                const Text('singer name',
+                Text(widget.song.artist ?? 'no artist',
                   //style: TextStyle(fontSize: ),
                 ),
                 const SizedBox(height: 20,),
-                ClipRRect(
+               /* ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.asset('assets/images/57200.jpg',
+                  child: Image.asset(
+                    'assets/images/57200.jpg',
                     width: MediaQuery.of(context).size.width - 50,
                   )
+                ), */
+                QueryArtworkWidget(
+                  id: widget.song.id, 
+                  type: ArtworkType.AUDIO,
+                  artworkBorder: BorderRadius.circular(10),
+                  artworkHeight: MediaQuery.of(context).size.width - 50,
+                  artworkWidth: MediaQuery.of(context).size.width - 50,
                 ),
                 const Spacer(),
                 Slider(

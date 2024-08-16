@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:music_player/screens/play_page.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,6 +10,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final OnAudioQuery _audioQuery = OnAudioQuery();
+  List<SongModel> _songs = [];
+
+  Future<void> getSongs() async{
+    bool hasPermission = await _audioQuery.checkAndRequest(retryRequest: true);
+    if (hasPermission) {
+      _songs = await _audioQuery.querySongs();
+      setState(() {
+        
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    getSongs();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,19 +36,21 @@ class _HomePageState extends State<HomePage> {
           title: const Text('Meowsics'),
           centerTitle: true,
         ),
-        body: ListView.builder(
-          itemCount: 10,
+        body: _songs == null ? const Center(child:  CircularProgressIndicator()) 
+        : ListView.builder(
+          itemCount: _songs.length,
           itemBuilder: (context, index){
             return ListTile(
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.asset('assets/images/57200.jpg'),
+              leading: QueryArtworkWidget(
+                id: _songs[index].id,
+                type: ArtworkType.AUDIO,
+                artworkBorder: BorderRadius.circular(10),
               ),
-              title: Text('Item $index'),
-              subtitle: Text('sub'),
+              title: Text(_songs![index].title, overflow: TextOverflow.fade,),
+              subtitle: Text(_songs![index].artist ?? ""),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context){
-                  return PlayPage();
+                  return PlayPage(song: _songs![index],);
                 }));
               },
             );
