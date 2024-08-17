@@ -1,21 +1,54 @@
-import 'dart:ui';
-
+//import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:just_audio/just_audio.dart';
 
 class PlayPage extends StatefulWidget {
   const PlayPage({super.key, required this.song});
 
   final SongModel song;
 
+
   @override
   State<PlayPage> createState() => _PlayPageState();
 }
 
 class _PlayPageState extends State<PlayPage> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  Duration? duration;
+  Duration currentDuration = Duration();
+
+  Future<void> getSong() async{
+    duration = await _audioPlayer.setAudioSource(
+      AudioSource.uri(Uri.parse(widget.song.uri!)),
+    );
+    _audioPlayer.positionStream.listen((event){
+      currentDuration = event;
+      setState(() {});
+    });
+    
+    _audioPlayer.play();
+    setState(() {
+      
+    });
+  }
+
+  @override
+  void initState() {
+    getSong();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.stop();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: SafeArea(
         child: Stack(
           children: [
@@ -31,14 +64,11 @@ class _PlayPageState extends State<PlayPage> {
                     artworkWidth: double.infinity,
                   ),
                 ),*/
-                const SizedBox(height: 20,),
                 Text(widget.song.title,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 5,),
-                Text(widget.song.artist ?? 'no artist',
-                  //style: TextStyle(fontSize: ),
-                ),
+                Text(widget.song.artist ?? 'no artist',),
                 const SizedBox(height: 20,),
                /* ClipRRect(
                   borderRadius: BorderRadius.circular(10),
@@ -53,42 +83,70 @@ class _PlayPageState extends State<PlayPage> {
                   artworkBorder: BorderRadius.circular(10),
                   artworkHeight: MediaQuery.of(context).size.width - 50,
                   artworkWidth: MediaQuery.of(context).size.width - 50,
+                  keepOldArtwork: true,
                 ),
                 const Spacer(),
                 Slider(
-                  value: 0.2, 
+                  value: currentDuration.inSeconds / (duration?.inSeconds ?? 1), 
                   thumbColor: Colors.white,
                   activeColor: Colors.white,
                   inactiveColor: const Color.fromARGB(255, 234, 234, 234),
-                  onChanged: (value){}
+                  onChanged: (value){
+                    _audioPlayer.seek(Duration(seconds: (value * (duration?.inSeconds ?? 0)).round()));
+                    setState(() {});
+                  }
                 ),
-                const Row(
+                Row(
                   children: [
-                    SizedBox(width: 30,),
-                    Text('00:10'),
-                    Spacer(),
-                    Text('03:10'),
-                    SizedBox(width: 30,),
+                    const SizedBox(width: 30,),
+                    Text(currentDuration.toString().split('.')[0].padLeft(8, '0')),
+                    const Spacer(),
+                    Text(duration.toString().split('.')[0].padLeft(8, '0')),
+                    const SizedBox(width: 30,),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton(onPressed: (){}, icon: const Icon(Icons.skip_previous_rounded)),
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: const Color.fromARGB(255, 154, 154, 154),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.pause_rounded,
-                          color: Color.fromARGB(255, 255, 255, 255),
+                    IconButton(
+                      onPressed: (){
+                        _audioPlayer.seek(currentDuration - Duration(seconds: 10));
+                        setState(() {});
+                      }, 
+                      icon: const Icon(Icons.skip_previous_rounded),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        if (_audioPlayer.playing) {
+                          _audioPlayer.pause();
+                        } else {
+                          _audioPlayer.play();
+                        }
+                        setState(() {
+                          
+                        });
+                      },
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 142, 142, 142),
+                          borderRadius: BorderRadius.circular(70),
                         ),
-                        onPressed: () {
-                    
-                        },
+                        child: Icon(_audioPlayer.playing 
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded, 
+                          color: Colors.white, size: 40,
+                        )
                       ),
                     ),
-                    IconButton(onPressed: (){}, icon: const Icon(Icons.skip_next_rounded)),
+                    IconButton(
+                      onPressed: (){
+                        _audioPlayer.seek(currentDuration + Duration(seconds: 10));
+                        setState(() {});
+                      }, 
+                      icon: const Icon(Icons.skip_next_rounded),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 50,)
