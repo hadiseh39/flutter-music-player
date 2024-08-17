@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:music_player/screens/play_page.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:just_audio/just_audio.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,6 +12,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  AudioPlayer audioPlayer = AudioPlayer();
   final OnAudioQuery _audioQuery = OnAudioQuery();
   List<SongModel> _songs = [];
 
@@ -49,8 +52,12 @@ class _HomePageState extends State<HomePage> {
               title: Text(_songs![index].title, overflow: TextOverflow.fade,),
               subtitle: Text(_songs![index].artist ?? ""),
               onTap: () {
+                if(audioPlayer.playing){
+                  audioPlayer.stop();
+                  setState(() {});
+                }
                 Navigator.push(context, MaterialPageRoute(builder: (context){
-                  return PlayPage(song: _songs![index],);
+                  return PlayPage(song: _songs![index], audioPlayer: audioPlayer,);
                 }));
               },
             );

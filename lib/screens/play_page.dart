@@ -4,45 +4,40 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:just_audio/just_audio.dart';
 
 class PlayPage extends StatefulWidget {
-  const PlayPage({super.key, required this.song});
+  const PlayPage({super.key, required this.song, required this.audioPlayer});
 
   final SongModel song;
-
+  final AudioPlayer audioPlayer;
 
   @override
   State<PlayPage> createState() => _PlayPageState();
 }
 
 class _PlayPageState extends State<PlayPage> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
   Duration? duration;
-  Duration currentDuration = Duration();
-
+  Duration currentDuration = const Duration();
+  String? currentSongTitle;
+  String? currentlyPlayingSongUri;
+  
   Future<void> getSong() async{
-    duration = await _audioPlayer.setAudioSource(
+    currentlyPlayingSongUri = widget.song.uri;
+    duration = await widget.audioPlayer.setAudioSource(
       AudioSource.uri(Uri.parse(widget.song.uri!)),
     );
-    _audioPlayer.positionStream.listen((event){
+    widget.audioPlayer.positionStream.listen((event){
       currentDuration = event;
       setState(() {});
     });
+    currentSongTitle = widget.song.title;
     
-    _audioPlayer.play();
-    setState(() {
-      
-    });
+    widget.audioPlayer.play();
+    setState(() {});
   }
 
   @override
   void initState() {
     getSong();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer.stop();
-    super.dispose();
   }
 
   @override
@@ -70,13 +65,6 @@ class _PlayPageState extends State<PlayPage> {
                 const SizedBox(height: 5,),
                 Text(widget.song.artist ?? 'no artist',),
                 const SizedBox(height: 20,),
-               /* ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    'assets/images/57200.jpg',
-                    width: MediaQuery.of(context).size.width - 50,
-                  )
-                ), */
                 QueryArtworkWidget(
                   id: widget.song.id, 
                   type: ArtworkType.AUDIO,
@@ -92,7 +80,7 @@ class _PlayPageState extends State<PlayPage> {
                   activeColor: Colors.white,
                   inactiveColor: const Color.fromARGB(255, 234, 234, 234),
                   onChanged: (value){
-                    _audioPlayer.seek(Duration(seconds: (value * (duration?.inSeconds ?? 0)).round()));
+                    widget.audioPlayer.seek(Duration(seconds: (value * (duration?.inSeconds ?? 0)).round()));
                     setState(() {});
                   }
                 ),
@@ -110,17 +98,17 @@ class _PlayPageState extends State<PlayPage> {
                   children: [
                     IconButton(
                       onPressed: (){
-                        _audioPlayer.seek(currentDuration - Duration(seconds: 10));
+                        widget.audioPlayer.seek(currentDuration - Duration(seconds: 10));
                         setState(() {});
                       }, 
                       icon: const Icon(Icons.skip_previous_rounded),
                     ),
                     GestureDetector(
                       onTap: () {
-                        if (_audioPlayer.playing) {
-                          _audioPlayer.pause();
+                        if (widget.audioPlayer.playing) {
+                          widget.audioPlayer.pause();
                         } else {
-                          _audioPlayer.play();
+                          widget.audioPlayer.play();
                         }
                         setState(() {
                           
@@ -133,7 +121,7 @@ class _PlayPageState extends State<PlayPage> {
                           color: const Color.fromARGB(255, 142, 142, 142),
                           borderRadius: BorderRadius.circular(70),
                         ),
-                        child: Icon(_audioPlayer.playing 
+                        child: Icon(widget.audioPlayer.playing 
                           ? Icons.pause_rounded
                           : Icons.play_arrow_rounded, 
                           color: Colors.white, size: 40,
@@ -142,7 +130,7 @@ class _PlayPageState extends State<PlayPage> {
                     ),
                     IconButton(
                       onPressed: (){
-                        _audioPlayer.seek(currentDuration + Duration(seconds: 10));
+                        widget.audioPlayer.seek(currentDuration + Duration(seconds: 10));
                         setState(() {});
                       }, 
                       icon: const Icon(Icons.skip_next_rounded),
