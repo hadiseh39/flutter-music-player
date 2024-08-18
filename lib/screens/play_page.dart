@@ -1,4 +1,3 @@
-//import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:just_audio/just_audio.dart';
@@ -49,16 +48,6 @@ class _PlayPageState extends State<PlayPage> {
           children: [
             Column(
               children: [
-                /*ImageFiltered(   // doesen't work in my phone:(
-                  imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: QueryArtworkWidget(
-                    id: widget.song.id, 
-                    type: ArtworkType.AUDIO,
-                    artworkFit: BoxFit.cover,
-                    artworkHeight: double.infinity,
-                    artworkWidth: double.infinity,
-                  ),
-                ),*/
                 Text(widget.song.title,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
@@ -110,13 +99,11 @@ class _PlayPageState extends State<PlayPage> {
                         } else {
                           widget.audioPlayer.play();
                         }
-                        setState(() {
-                          
-                        });
+                        setState(() {});
                       },
                       child: Container(
-                        width: 50,
-                        height: 50,
+                        width: 60,
+                        height: 60,
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(255, 142, 142, 142),
                           borderRadius: BorderRadius.circular(70),
