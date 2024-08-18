@@ -20,9 +20,7 @@ class _HomePageState extends State<HomePage> {
     bool hasPermission = await _audioQuery.checkAndRequest(retryRequest: true);
     if (hasPermission) {
       _songs = await _audioQuery.querySongs();
-      setState(() {
-        
-      });
+      setState(() {});
     }
   }
 
